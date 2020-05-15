@@ -15,7 +15,7 @@ void setup() {
   Serial.begin(9600);
   // reserve N bytes for the inputString:
   inputString.reserve(INPUT_LENGTH);
-  Serial.println("nanoforth");
+  Serial.println('?');
 }
 
 String getNextDelimitedWord(char delimiter){
@@ -42,12 +42,14 @@ int pop(){
 }
 
 void printStack(){
-   for(int i = 0; i < stackPtr; i++){
-      Serial.print(stack[i]);
-      Serial.print(" ");
-    }
-    Serial.print("stack length: ");
-    Serial.println(stackPtr);
+  Serial.print('<');
+  Serial.print(stackPtr);
+  Serial.print('>');
+  Serial.print(' ');
+  for(int i = 0; i < stackPtr; i++){
+     Serial.print(stack[i]);
+     Serial.print(" ");
+  }  
 }
 
 void evaluateToken(String token){
@@ -80,8 +82,8 @@ void evaluateToken(String token){
     printStack();
   }
   else{
-  int number = token.toInt();
-  push(number);
+    int number = token.toInt();
+    push(number);
   }
 }
 
@@ -93,13 +95,18 @@ void repl() {
   gParserPosition = 0;
 }
 
+void ok(){
+  Serial.print(' ');
+  Serial.print('o');
+  Serial.println('k');
+}
+
 void loop() {
-  // put your main code here, to run repeatedly:
   // print the string when a newline arrives:
   if (stringComplete) {
     stringComplete = false;
     repl();
-    Serial.println(" ok");
+    ok();
     // clear the string:
     inputString = "";
   }
@@ -109,13 +116,13 @@ void serialEvent() {
   while (Serial.available()) {
     // get the new byte:
     char inChar = (char)Serial.read();
-    // echo the new byte
-    Serial.print(inChar);
     // repl on newline
     if (inChar == '\n') {
+      Serial.print(' ');
       stringComplete = true;
       return;
     }
+    Serial.print(inChar);
     // add it to the inputString:
     inputString += inChar;
   }
