@@ -1,16 +1,17 @@
 #include "platform.h"
 #include <stddef.h>
 #include "string_util.h"
+#include <ctype.h>
 
 char* inputString;
 //String inputString = "";         // a String to hold incoming data
 int gParserPosition = 0;
 
-
-
-
 int stack[128];
 int stackPtr = 0;
+
+//TODO return stack functions >r r>
+int returnStack[16];
 
 void push(int number) {
     stack[stackPtr++] = number;
@@ -31,7 +32,7 @@ char* getNextDelimitedWord(char delimiter) {
     //String token = "";
 
     //skip leading spaces
-    while (inputString[gParserPosition] == ' ')
+    while (isspace(inputString[gParserPosition]))
         gParserPosition++;
 
     int wordStart = gParserPosition;
@@ -56,8 +57,14 @@ void printStack() {
     }
 }
 
+int to_forth_bool(int c_bool) {
+    return c_bool ? -1 : 0;
+}
+
 void evaluateToken(char *tok) {
-    //char* tok = token.c_str();
+    //skip empty string (probably whitespace at the end of the input)
+    if (strlen(tok) == 0)
+        return;
     if (strcmp(tok, "+") == 0) {
         push(pop() + pop());
     }
@@ -75,9 +82,28 @@ void evaluateToken(char *tok) {
         int a = pop();
         push(a / b);
     }
+    else if (strcmp(tok, "mod") == 0) {
+        int b = pop();
+        int a = pop();
+        push(a % b);
+    }
     else if (strcmp(tok, "emit") == 0) {
         char c = (char)pop();
         print_char(c);
+    }
+    else if (strcmp(tok, "dup") == 0) {
+        int a = pop();
+        push(a);
+        push(a);
+    }
+    else if (strcmp(tok, "drop") == 0) {
+        pop();
+    }
+    else if (strcmp(tok, "swap") == 0) {
+        int a = pop();
+        int b = pop();
+        push(a);
+        push(b);
     }
     else if (strcmp(tok, ".") == 0) {
         print_int(pop());
@@ -85,9 +111,49 @@ void evaluateToken(char *tok) {
     else if (strcmp(tok, ".s") == 0) {
         printStack();
     }
+    else if (strcmp(tok, "<") == 0) {
+        int b = pop();
+        int a = pop();
+        push(to_forth_bool(a < b));
+    }
+    else if (strcmp(tok, ">") == 0) {
+        int b = pop();
+        int a = pop();
+        push(to_forth_bool(a > b));
+    }
+    else if (strcmp(tok, "=") == 0) {
+        int b = pop();
+        int a = pop();
+        push(to_forth_bool(a == b));
+    }
+    else if (strcmp(tok, "and") == 0) {
+        int b = pop();
+        int a = pop();
+        push(to_forth_bool(a && b));
+    }
+    else if (strcmp(tok, "or") == 0) {
+        int b = pop();
+        int a = pop();
+        push(to_forth_bool(a || b));
+    }
+    else if (strcmp(tok, "xor") == 0) {
+        int b = pop();
+        int a = pop();
+        push(to_forth_bool(a ^ b));
+    }
+    else if (strcmp(tok, "invert") == 0) {
+        int a = pop();
+        push(~a);
+    }
     else {
-        int number = atoi(tok);
-        push(number);
+        errno = 0;
+        char* endptr = NULL;
+        long number = strtol(tok, &endptr, 10);
+        if (errno != 0)
+            return;
+        if (endptr == tok) //invalid number, no digits read
+            return;
+        push((int)number);
     }
 }
 

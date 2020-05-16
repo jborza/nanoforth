@@ -11,7 +11,6 @@ int main(int argc, char* argv[]) {
 
 	char buffer[BUFFER_SIZE];
 	while (fgets(buffer, BUFFER_SIZE, stdin) != NULL) {
-		printf("read: %s\n", buffer);
 		inputString = _strdup(buffer);
 		repl();
 	}
