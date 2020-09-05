@@ -4,32 +4,38 @@ An incomplete minimal Forth for Arduino, in C. The communication happens over th
 
 Currently supports these words:
 #### arithmetic
+```
 +
 -
 *
 /
 mod
+```
 
 #### comparison
+```
 <
 >
 =
+```
 
 #### stack
+```
 dup
 drop
 swap
+```
 
 #### output
-
+```
 emit
 .
 .s (print stack)
-
-
-
+```
 #### bitwise:
-- and
-- or
-- xor
-- invert
+```
+and
+or
+xor
+invert
+```
